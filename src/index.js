@@ -1,3 +1,4 @@
+import _ from 'lodash';
 import React, {Component} from 'react';
 import ReactDOM from 'react-dom';
 import YTSearch from 'youtube-api-search';
@@ -18,21 +19,29 @@ class App extends Component {
       selectedVideo: null
     };
 
-    YTSearch({key: API_KEY, term: 'starwars'}, (videos) => {
+    this.videoSearch('starwars');
+
+  }
+
+  videoSearch(term) {
+    YTSearch({key: API_KEY, term: term}, (videos) => {
       this.setState({
         videos: videos,
-        selectedVideos: videos[0]
+        selectedVideo: videos[0]
       });
       // this.state({videos: videos});
     });
   }
 
   render(){
+    const videoSearch = _.debounce((term) => {this.videoSearch(term)},300)
     return (
       <div>
-        <SearchBar/>
-        <VideoDetail video={this.state.selectedVideos}/>
-        <VideoList videos={this.state.videos} />
+        <SearchBar onSearchTermChange={videoSearch} />
+        <VideoDetail video={this.state.selectedVideo}/>
+        <VideoList
+          onVideoSelect={video => this.setState({selectedVideo: video})}
+          videos={this.state.videos} />
       </div>
     );
   }
